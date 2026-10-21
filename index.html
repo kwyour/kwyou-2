@@ -2237,5 +2237,340 @@
     <script src="js/onboarding.js"></script> 
     <script src="js/listeners.js"></script>
     <script src="js/app.js"></script>
+        <!-- ================= 自定义专属桌面 终极版 ================= -->
+<style>
+    /* 全局字体与重置 */
+    #kwyou-desktop * { box-sizing: border-box; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
+    
+    /* 桌面主容器 */
+    #kwyou-desktop {
+        position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+        background-image: url('https://images.unsplash.com/photo-1579546929518-9e396f3cc809?w=800&q=80');
+        background-size: cover; background-position: center;
+        z-index: 99990; display: flex; flex-direction: column; align-items: center;
+        overflow-y: auto; transition: opacity 0.3s;
+    }
+    
+    /* 头像卡片 */
+    .desk-header {
+        display: flex; justify-content: center; align-items: center; gap: 30px;
+        width: 90%; max-width: 400px; margin-top: 60px; padding: 30px 20px;
+        background: rgba(255, 255, 255, 0.65); 
+        backdrop-filter: blur(15px); -webkit-backdrop-filter: blur(15px);
+        border-radius: 30px; box-shadow: 0 8px 32px rgba(0,0,0,0.08);
+        border: 1px solid rgba(255,255,255,0.5);
+    }
+    .desk-avatar-box { text-align: center; cursor: pointer; } /* 加了鼠标手势 */
+    .desk-avatar { 
+        width: 80px; height: 80px; border-radius: 50%; object-fit: cover; 
+        border: 2px solid #fff; box-shadow: 0 4px 10px rgba(0,0,0,0.1); 
+        transition: transform 0.2s;
+    }
+    .desk-avatar-box:active .desk-avatar { transform: scale(0.95); }
+    .desk-name { font-size: 14px; margin-top: 12px; color: #666; font-weight: 500; }
+    .desk-heart { font-size: 28px; color: #999; }
+
+    /* 图标网格 */
+    .desk-grid {
+        display: grid; grid-template-columns: repeat(4, 1fr);
+        width: 90%; max-width: 450px; gap: 25px 15px; margin-top: 40px; margin-bottom: 50px;
+    }
+    @media (max-width: 400px) {
+        .desk-grid { grid-template-columns: repeat(3, 1fr); gap: 20px 10px; }
+        .desk-header { gap: 15px; padding: 20px; }
+        .desk-avatar { width: 60px; height: 60px; }
+    }
+    
+    /* 单个图标样式 */
+    .desk-icon {
+        display: flex; flex-direction: column; align-items: center; justify-content: center;
+        background: rgba(255, 255, 255, 0.85); 
+        backdrop-filter: blur(5px); -webkit-backdrop-filter: blur(5px);
+        aspect-ratio: 1; border-radius: 20px; cursor: pointer; 
+        box-shadow: 0 4px 15px rgba(0,0,0,0.05); transition: all 0.2s;
+        position: relative;
+    }
+    .desk-icon:active { transform: scale(0.92); background: rgba(255, 255, 255, 1); }
+    .desk-icon svg { width: 32px; height: 32px; margin-bottom: 8px; stroke: #333; fill: none; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round;}
+    .desk-icon span { font-size: 12px; color: #333; font-weight: 500; }
+    
+    /* 红色角标 */
+    .badge {
+        position: absolute; top: -5px; right: -5px;
+        background: #fff; border: 1px solid #eee; color: #333;
+        font-size: 11px; font-weight: bold; width: 20px; height: 20px;
+        display: flex; align-items: center; justify-content: center; border-radius: 50%;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    }
+
+    /* 弹窗页面 */
+    .app-page {
+        position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+        background: rgba(0,0,0,0.4); backdrop-filter: blur(5px); z-index: 99995;
+        display: none; justify-content: center; align-items: center;
+    }
+    .page-box {
+        background: #fff; width: 88%; max-width: 380px; border-radius: 25px; padding: 25px;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.2); max-height: 80vh; overflow-y: auto;
+        animation: popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    }
+    @keyframes popIn { from { transform: scale(0.9); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+    .page-title { font-size: 18px; font-weight: bold; margin-bottom: 20px; text-align: center; color: #333; }
+    .page-close { background: #f5f5f5; border: none; padding: 12px; width: 100%; border-radius: 12px; margin-top: 20px; font-size: 15px; font-weight: bold; color: #666; cursor: pointer; }
+    
+    /* 具体功能样式 */
+    .cal-big { text-align: center; font-size: 48px; font-weight: 200; color: #333; line-height: 1; margin-bottom: 5px;}
+    .cal-small { text-align: center; font-size: 14px; color: #888; margin-bottom: 20px;}
+    .item-row { display: flex; justify-content: space-between; align-items: center; padding: 12px 0; border-bottom: 1px solid #f0f0f0; font-size: 14px; color: #444;}
+    .del-btn { color: #ff4d4f; background: none; border: none; font-size: 14px; cursor: pointer;}
+    .input-row { display: flex; gap: 10px; margin-top: 15px; }
+    .input-row input, .input-row textarea { flex: 1; padding: 12px; border: 1px solid #eee; border-radius: 12px; font-size: 14px; outline: none; background: #fafafa;}
+    .input-row button { background: #333; color: #fff; border: none; padding: 0 20px; border-radius: 12px; cursor: pointer; font-weight: bold;}
+</style>
+
+<!-- 桌面结构 -->
+<div id="kwyou-desktop">
+    <!-- 顶部头像（现在点击可以换图了！） -->
+    <div class="desk-header">
+        <div class="desk-avatar-box" onclick="document.getElementById('avatar-uploader-ta').click()">
+            <img class="desk-avatar" id="avatar-ta" src="https://api.dicebear.com/7.x/adventurer/svg?seed=TA" alt="TA">
+            <div class="desk-name">TA</div>
+        </div>
+        <div class="desk-heart">♡</div>
+        <div class="desk-avatar-box" onclick="document.getElementById('avatar-uploader-me').click()">
+            <img class="desk-avatar" id="avatar-me" src="https://api.dicebear.com/7.x/adventurer/svg?seed=Me" alt="我">
+            <div class="desk-name">我</div>
+        </div>
+    </div>
+
+    <!-- 图标网格 -->
+    <div class="desk-grid">
+        <div class="desk-icon" onclick="openMilkChat()">
+            <svg viewBox="0 0 24 24"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"></path></svg>
+            <span>聊天</span>
+        </div>
+        <div class="desk-icon" onclick="openPage('calendar')">
+            <svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
+            <span>日历</span>
+        </div>
+        <div class="desk-icon" onclick="openPage('anniversary')">
+            <svg viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path></svg>
+            <span>纪念日</span>
+        </div>
+        <div class="desk-icon" onclick="openPage('favorites')">
+            <svg viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>
+            <span>收藏</span>
+            <div class="badge" id="fav-badge">0</div>
+        </div>
+        <div class="desk-icon" onclick="document.getElementById('bg-uploader').click()">
+            <svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><circle cx="8.5" cy="8.5" r="1.5"></circle><polyline points="21 15 16 10 5 21"></polyline></svg>
+            <span>壁纸</span>
+        </div>
+        <div class="desk-icon" onclick="openMilkChat()">
+            <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
+            <span>设置</span>
+        </div>
+    </div>
+</div>
+
+<!-- 隐藏的上传组件 -->
+<input type="file" id="bg-uploader" accept="image/*" style="display:none;" onchange="changeBg(event)">
+<input type="file" id="avatar-uploader-ta" accept="image/*" style="display:none;" onchange="changeAvatar(event, 'ta')">
+<input type="file" id="avatar-uploader-me" accept="image/*" style="display:none;" onchange="changeAvatar(event, 'me')">
+
+<!-- 日历页面 -->
+<div id="page-calendar" class="app-page">
+    <div class="page-box">
+        <div class="page-title">📅 今天</div>
+        <div class="cal-big" id="cal-day">00</div>
+        <div class="cal-small" id="cal-desc">xxxx年xx月</div>
+        <button class="page-close" onclick="closePage('calendar')">关闭</button>
+    </div>
+</div>
+
+<!-- 纪念日页面 -->
+<div id="page-anniversary" class="app-page">
+    <div class="page-box">
+        <div class="page-title">🎗️ 纪念日</div>
+        <div id="anni-list"></div>
+        <div class="input-row">
+            <input type="date" id="anni-input">
+            <button onclick="addAnni()">添加</button>
+        </div>
+        <button class="page-close" onclick="closePage('anniversary')">关闭</button>
+    </div>
+</div>
+
+<!-- 收藏页面 -->
+<div id="page-favorites" class="app-page">
+    <div class="page-box">
+        <div class="page-title">⭐ 收藏本</div>
+        <div style="font-size:12px; color:#999; text-align:center; margin-bottom:15px;">在聊天界面长按或选中文字，即可收藏</div>
+        <div id="fav-list" style="max-height: 40vh; overflow-y:auto; margin-bottom:15px;"></div>
+        <button class="page-close" onclick="closePage('favorites')">关闭</button>
+    </div>
+</div>
+
+<script>
+    // 1. 初始化与基础控制
+    function openMilkChat() {
+        document.getElementById('kwyou-desktop').style.display = 'none';
+        let backBtn = document.getElementById('desk-back-btn');
+        if(!backBtn) {
+            backBtn = document.createElement('div');
+            backBtn.id = 'desk-back-btn';
+            backBtn.innerHTML = "🔙 返回桌面";
+            backBtn.style.cssText = "position:fixed; top:20px; left:20px; font-size:13px; font-weight:bold; z-index:99999; cursor:pointer; padding:8px 15px; background:rgba(255,255,255,0.9); border-radius:20px; box-shadow:0 2px 10px rgba(0,0,0,0.15);";
+            backBtn.onclick = function() {
+                document.getElementById('kwyou-desktop').style.display = 'flex';
+                backBtn.style.display = 'none';
+            };
+            document.body.appendChild(backBtn);
+        }
+        backBtn.style.display = 'block';
+    }
+
+    function openPage(id) { document.getElementById('page-' + id).style.display = 'flex'; }
+    function closePage(id) { document.getElementById('page-' + id).style.display = 'none'; }
+
+    // 2. 壁纸与头像功能
+    window.onload = function() {
+        const savedBg = localStorage.getItem('kwyou_bg');
+        if(savedBg) document.getElementById('kwyou-desktop').style.backgroundImage = `url(${savedBg})`;
+        
+        const taAv = localStorage.getItem('kwyou_avatar_ta');
+        const meAv = localStorage.getItem('kwyou_avatar_me');
+        if(taAv) document.getElementById('avatar-ta').src = taAv;
+        if(meAv) document.getElementById('avatar-me').src = meAv;
+        
+        updateFavBadge();
+    }
+
+    function changeBg(e) {
+        const file = e.target.files[0];
+        if(!file) return;
+        const reader = new FileReader();
+        reader.onload = function(evt) {
+            const base64 = evt.target.result;
+            document.getElementById('kwyou-desktop').style.backgroundImage = `url(${base64})`;
+            try { localStorage.setItem('kwyou_bg', base64); } catch (err) { alert('图片太大，存不下哦~'); }
+        };
+        reader.readAsDataURL(file);
+    }
+
+    function changeAvatar(e, who) {
+        const file = e.target.files[0];
+        if(!file) return;
+        const reader = new FileReader();
+        reader.onload = function(evt) {
+            const base64 = evt.target.result;
+            document.getElementById('avatar-' + who).src = base64;
+            try { localStorage.setItem('kwyou_avatar_' + who, base64); } catch (err) { alert('图片太大，存不下哦~'); }
+        };
+        reader.readAsDataURL(file);
+    }
+
+    // 3. 日历功能
+    function initCalendar() {
+        const d = new Date();
+        document.getElementById('cal-day').innerText = d.getDate();
+        document.getElementById('cal-desc').innerText = `${d.getFullYear()}年${d.getMonth()+1}月`;
+    }
+    document.getElementById('page-calendar').addEventListener('click', function(e) {
+        if(e.target === this) initCalendar();
+    });
+    initCalendar();
+
+    // 4. 纪念日功能
+    function getAnnis() { return JSON.parse(localStorage.getItem('kwyou_annis') || '[]'); }
+    function addAnni() {
+        const val = document.getElementById('anni-input').value;
+        if(!val) return;
+        const arr = getAnnis(); arr.push(val);
+        localStorage.setItem('kwyou_annis', JSON.stringify(arr));
+        document.getElementById('anni-input').value = '';
+        renderAnnis();
+    }
+    function renderAnnis() {
+        const arr = getAnnis();
+        const list = document.getElementById('anni-list');
+        list.innerHTML = '';
+        if(arr.length === 0) list.innerHTML = '<div style="text-align:center;color:#999;padding:20px;">暂无纪念日</div>';
+        arr.forEach((date, i) => {
+            const target = new Date(date);
+            const today = new Date(); today.setHours(0,0,0,0);
+            const diff = Math.floor((today - target) / (1000*60*60*24));
+            const text = diff >= 0 ? `已过去 ${diff} 天` : `还有 ${Math.abs(diff)} 天`;
+            list.innerHTML += `<div class="item-row"><span>${date}</span><span style="color:#666;">${text}</span><button class="del-btn" onclick="delAnni(${i})">删除</button></div>`;
+        });
+    }
+    function delAnni(i) {
+        const arr = getAnnis(); arr.splice(i, 1);
+        localStorage.setItem('kwyou_annis', JSON.stringify(arr));
+        renderAnnis();
+    }
+    document.getElementById('page-anniversary').addEventListener('click', function(e) {
+        if(e.target === this) renderAnnis();
+    });
+
+    // 5. 收藏功能
+    function getFavs() { return JSON.parse(localStorage.getItem('kwyou_favs') || '[]'); }
+    function updateFavBadge() {
+        const count = getFavs().length;
+        document.getElementById('fav-badge').innerText = count;
+        document.getElementById('fav-badge').style.display = count > 0 ? 'flex' : 'none';
+    }
+    function renderFavs() {
+        const arr = getFavs();
+        const list = document.getElementById('fav-list');
+        list.innerHTML = '';
+        if(arr.length === 0) list.innerHTML = '<div style="text-align:center;color:#999;padding:20px;">还没有收藏内容哦</div>';
+        arr.forEach((text, i) => {
+            list.innerHTML += `<div class="item-row" style="flex-direction:column; align-items:flex-start;"><div style="line-height:1.5;">${text}</div><button class="del-btn" style="align-self:flex-end; margin-top:5px;" onclick="delFav(${i})">删除</button></div>`;
+        });
+    }
+    function delFav(i) {
+        const arr = getFavs(); arr.splice(i, 1);
+        localStorage.setItem('kwyou_favs', JSON.stringify(arr));
+        renderFavs(); updateFavBadge();
+    }
+    document.getElementById('page-favorites').addEventListener('click', function(e) {
+        if(e.target === this) renderFavs();
+    });
+
+    // 长按/选中文字收藏
+    document.addEventListener('mouseup', function(e) {
+        if (document.getElementById('kwyou-desktop').style.display === 'none') {
+            const selectedText = window.getSelection().toString().trim();
+            if (selectedText.length > 0 && selectedText.length < 200) {
+                if(confirm(`是否将这段话加入收藏？\n\n"${selectedText}"`)) {
+                    const arr = getFavs(); arr.unshift(selectedText);
+                    localStorage.setItem('kwyou_favs', JSON.stringify(arr));
+                    updateFavBadge(); alert('⭐ 收藏成功！');
+                    window.getSelection().removeAllRanges();
+                }
+            }
+        }
+    });
+
+    let touchTimer = null;
+    document.addEventListener('touchstart', function(e) {
+        if (document.getElementById('kwyou-desktop').style.display === 'none') {
+            touchTimer = setTimeout(function() {
+                const selectedText = window.getSelection().toString().trim();
+                if (selectedText.length > 0 && selectedText.length < 200) {
+                    if(confirm(`是否将这段话加入收藏？\n\n"${selectedText}"`)) {
+                        const arr = getFavs(); arr.unshift(selectedText);
+                        localStorage.setItem('kwyou_favs', JSON.stringify(arr));
+                        updateFavBadge();
+                        window.getSelection().removeAllRanges();
+                    }
+                }
+            }, 800);
+        }
+    });
+    document.addEventListener('touchend', function() { if(touchTimer) clearTimeout(touchTimer); });
+</script>
+<!-- ================= 自定义专属桌面 终极版结束 ================= -->
 </body>
 </html>
