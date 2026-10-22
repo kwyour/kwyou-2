@@ -7,6 +7,8 @@
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="theme-color" content="#000000">
+    <link rel="manifest" href="./manifest.json">
+<meta name="theme-color" content="#ffffff">
 
     <title>kwyou</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -16,6 +18,23 @@
     <link rel="icon" type="image/png" sizes="192x192" href="https://file.youtochat.com/images/20260216/1771224856844_qdqqd.jpeg">
     <link rel="apple-touch-icon" href="https://file.youtochat.com/images/20260216/1771224856844_qdqqd.jpeg">
     <meta name="apple-mobile-web-app-title" content="kwyou">
+    <style>
+    /* 👇 强制修复键盘弹起时的底部白条 👇 */
+    html, body {
+        height: 100% !important;
+        min-height: 100% !important;
+        overflow: hidden !important; /* 防止页面整体滚动露白 */
+        background-color: #f5f5f5 !important; /* 将底色统一，即使露白也是相近的颜色 */
+    }
+
+    /* 覆盖各种可能产生白边的底部容器 */
+    .main-chat-area, .chat-container, #chat-container, 
+    .chat-input-area, #chat-input-area, .input-bar, #input-bar {
+        padding-bottom: 0 !important;
+        margin-bottom: 0 !important;
+        border-bottom: none !important;
+    }
+</style>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/localforage/1.10.0/localforage.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
@@ -2614,6 +2633,40 @@
         }
     });
     document.addEventListener('touchend', function() { if(touchTimer) clearTimeout(touchTimer); });
+</script>
+        <!-- 👇 动态修复键盘弹起导致的白条 👇 -->
+<script>
+    // 监听窗口高度变化（键盘弹起/收起）
+    window.addEventListener('resize', function() {
+        // 当键盘弹起时，window.innerHeight 会变小
+        // 动态设置 body 的高度为当前可视高度，强行挤压白条
+        document.body.style.height = window.innerHeight + 'px';
+        
+        // 如果输入框在页面底部，尝试让聊天区滚到底部，让用户能一直看到输入框
+        const chatContainer = document.querySelector('.chat-container, #chat-container, .main-chat-area');
+        if (chatContainer) {
+            chatContainer.scrollTop = chatContainer.scrollHeight;
+        }
+    });
+
+    // 针对部分安卓浏览器的特殊处理
+    if (window.visualViewport) {
+        window.visualViewport.addEventListener('resize', function() {
+            document.body.style.height = window.visualViewport.height + 'px';
+        });
+    }
+</script>
+        <script>
+  // 注册 PWA 服务，让安装按钮亮起
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+      navigator.serviceWorker.register('./sw.js').then(registration => {
+        console.log('SW registered: ', registration);
+      }).catch(registrationError => {
+        console.log('SW registration failed: ', registrationError);
+      });
+    });
+  }
 </script>
 </body>
 </html>
