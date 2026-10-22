@@ -10,14 +10,14 @@
     <link rel="manifest" href="./manifest.json">
 <meta name="theme-color" content="#ffffff">
 
-    <title>kwyou</title>
+    <title>kwyou2</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;500;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="icon" type="image/png" sizes="192x192" href="https://file.youtochat.com/images/20260216/1771224856844_qdqqd.jpeg">
     <link rel="apple-touch-icon" href="https://file.youtochat.com/images/20260216/1771224856844_qdqqd.jpeg">
-    <meta name="apple-mobile-web-app-title" content="kwyou">
+    <meta name="apple-mobile-web-app-title" content="kwyou2">
     
     <script src="https://cdnjs.cloudflare.com/ajax/libs/localforage/1.10.0/localforage.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
@@ -2241,9 +2241,9 @@
     <script src="js/app.js"></script>
     <!-- ================= 自定义专属桌面 终极持久化+角标版 ================= -->
 <style>
-    #kwyou-desktop * { box-sizing: border-box; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
+    #kwyou2-desktop * { box-sizing: border-box; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
     
-    #kwyou-desktop {
+    #kwyou2-desktop {
         position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
         background-image: url('https://images.unsplash.com/photo-1579546929518-9e396f3cc809?w=800&q=80');
         background-size: cover; background-position: center;
@@ -2318,7 +2318,7 @@
     .main-chat-area { padding-bottom: 0 !important; }
 </style>
 
-<div id="kwyou-desktop">
+<div id="kwyou2-desktop">
     <div class="desk-header">
         <div class="desk-avatar-box">
             <img class="desk-avatar" id="avatar-ta" onclick="document.getElementById('avatar-uploader-ta').click()" src="https://api.dicebear.com/7.x/adventurer/svg?seed=TA" alt="TA">
@@ -2377,13 +2377,13 @@
     // 更新所有白底黑字角标
     function updateAllBadges() {
         // 1. 收藏角标
-        const favCount = JSON.parse(localStorage.getItem('kwyou_favs') || '[]').length;
+        const favCount = JSON.parse(localStorage.getItem('kwyou2_favs') || '[]').length;
         const favBadge = document.getElementById('fav-badge');
         favBadge.innerText = favCount;
         favBadge.style.display = favCount > 0 ? 'flex' : 'none';
 
         // 2. 纪念日角标
-        const anniCount = JSON.parse(localStorage.getItem('kwyou_annis') || '[]').length;
+        const anniCount = JSON.parse(localStorage.getItem('kwyou2_annis') || '[]').length;
         const anniBadge = document.getElementById('anni-badge');
         anniBadge.innerText = anniCount;
         anniBadge.style.display = anniCount > 0 ? 'flex' : 'none';
@@ -2405,12 +2405,12 @@
 
     // 核心加载函数
     function loadDesktopData() {
-        const savedBg = localStorage.getItem('kwyou_bg');
-        if(savedBg) document.getElementById('kwyou-desktop').style.backgroundImage = `url(${savedBg})`;
+        const savedBg = localStorage.getItem('kwyou2_bg');
+        if(savedBg) document.getElementById('kwyou2-desktop').style.backgroundImage = `url(${savedBg})`;
         
         ['ta', 'me'].forEach(who => {
-            const av = localStorage.getItem('kwyou_avatar_' + who);
-            const nm = localStorage.getItem('kwyou_name_' + who);
+            const av = localStorage.getItem('kwyou2_avatar_' + who);
+            const nm = localStorage.getItem('kwyou2_name_' + who);
             if(av) document.getElementById('avatar-' + who).src = av;
             if(nm) document.getElementById('name-' + who).innerText = nm;
         });
@@ -2462,13 +2462,13 @@
     }
 
     function openMilkChat() {
-        document.getElementById('kwyou-desktop').style.display = 'none';
+        document.getElementById('kwyou2-desktop').style.display = 'none';
         let backBtn = document.getElementById('desk-back-btn');
         if(!backBtn) {
             backBtn = document.createElement('div');
             backBtn.id = 'desk-back-btn';
             backBtn.innerHTML = "🔙";
-            let savedPos = JSON.parse(localStorage.getItem('kwyou_btn_pos') || '{"right":"20px","top":"20px"}');
+            let savedPos = JSON.parse(localStorage.getItem('kwyou2_btn_pos') || '{"right":"20px","top":"20px"}');
             let posStyle = savedPos.left ? `left:${savedPos.left}; top:${savedPos.top};` : `right:${savedPos.right}; top:${savedPos.top};`;
             
             backBtn.style.cssText = `position:fixed; ${posStyle} width:40px; height:40px; font-size:18px; z-index:99999; display:flex; align-items:center; justify-content:center; cursor:pointer; background:rgba(255,255,255,0.9); border-radius:50%; box-shadow:0 2px 10px rgba(0,0,0,0.15); touch-action:none;`;
@@ -2489,12 +2489,12 @@
             });
             backBtn.addEventListener('touchend', function(e) {
                 if(isDragging) {
-                    localStorage.setItem('kwyou_btn_pos', JSON.stringify({ left: backBtn.style.left, top: backBtn.style.top }));
+                    localStorage.setItem('kwyou2_btn_pos', JSON.stringify({ left: backBtn.style.left, top: backBtn.style.top }));
                 }
             });
             backBtn.onclick = function(e) {
                 if (isDragging) return;
-                document.getElementById('kwyou-desktop').style.display = 'flex';
+                document.getElementById('kwyou2-desktop').style.display = 'flex';
                 loadDesktopData(); // 回桌面刷新数据
                 backBtn.style.display = 'none';
             };
@@ -2515,15 +2515,15 @@
         let newName = prompt('请输入新名字:', currentName);
         if (newName && newName.trim() !== '') {
             document.getElementById('name-' + who).innerText = newName.trim();
-            localStorage.setItem('kwyou_name_' + who, newName.trim());
+            localStorage.setItem('kwyou2_name_' + who, newName.trim());
         }
     }
 
     function changeBg(e) {
         const file = e.target.files[0]; if(!file) return;
         compressImage(file, 1080, function(base64) {
-            document.getElementById('kwyou-desktop').style.backgroundImage = `url(${base64})`;
-            try { localStorage.setItem('kwyou_bg', base64); } catch (err) { alert('存储空间不足'); }
+            document.getElementById('kwyou2-desktop').style.backgroundImage = `url(${base64})`;
+            try { localStorage.setItem('kwyou2_bg', base64); } catch (err) { alert('存储空间不足'); }
         });
     }
 
@@ -2531,7 +2531,7 @@
         const file = e.target.files[0]; if(!file) return;
         compressImage(file, 300, function(base64) {
             document.getElementById('avatar-' + who).src = base64;
-            try { localStorage.setItem('kwyou_avatar_' + who, base64); } catch (err) { alert('存储空间不足'); }
+            try { localStorage.setItem('kwyou2_avatar_' + who, base64); } catch (err) { alert('存储空间不足'); }
         });
     }
 
@@ -2545,11 +2545,11 @@
     initCalendar();
 
     // 纪念日
-    function getAnnis() { return JSON.parse(localStorage.getItem('kwyou_annis') || '[]'); }
+    function getAnnis() { return JSON.parse(localStorage.getItem('kwyou2_annis') || '[]'); }
     function addAnni() {
         const val = document.getElementById('anni-input').value; if(!val) return;
         const arr = getAnnis(); arr.push(val);
-        localStorage.setItem('kwyou_annis', JSON.stringify(arr));
+        localStorage.setItem('kwyou2_annis', JSON.stringify(arr));
         document.getElementById('anni-input').value = ''; 
         renderAnnis(); updateAllBadges();
     }
@@ -2565,13 +2565,13 @@
     }
     function delAnni(i) { 
         const arr = getAnnis(); arr.splice(i, 1); 
-        localStorage.setItem('kwyou_annis', JSON.stringify(arr)); 
+        localStorage.setItem('kwyou2_annis', JSON.stringify(arr)); 
         renderAnnis(); updateAllBadges();
     }
     document.getElementById('page-anniversary').addEventListener('click', function(e) { if(e.target === this) renderAnnis(); });
 
     // 收藏
-    function getFavs() { return JSON.parse(localStorage.getItem('kwyou_favs') || '[]'); }
+    function getFavs() { return JSON.parse(localStorage.getItem('kwyou2_favs') || '[]'); }
     function renderFavs() {
         const arr = getFavs(); const list = document.getElementById('fav-list'); list.innerHTML = '';
         if(arr.length === 0) list.innerHTML = '<div style="text-align:center;color:#999;padding:20px;">还没有收藏内容哦</div>';
@@ -2581,19 +2581,19 @@
     }
     function delFav(i) { 
         const arr = getFavs(); arr.splice(i, 1); 
-        localStorage.setItem('kwyou_favs', JSON.stringify(arr)); 
+        localStorage.setItem('kwyou2_favs', JSON.stringify(arr)); 
         renderFavs(); updateAllBadges();
     }
     document.getElementById('page-favorites').addEventListener('click', function(e) { if(e.target === this) renderFavs(); });
 
     // 长按收藏
     document.addEventListener('mouseup', function(e) {
-        if (document.getElementById('kwyou-desktop').style.display === 'none') {
+        if (document.getElementById('kwyou2-desktop').style.display === 'none') {
             const selectedText = window.getSelection().toString().trim();
             if (selectedText.length > 0 && selectedText.length < 200) {
                 if(confirm(`是否将这段话加入收藏？\n\n"${selectedText}"`)) {
                     const arr = getFavs(); arr.unshift(selectedText);
-                    localStorage.setItem('kwyou_favs', JSON.stringify(arr));
+                    localStorage.setItem('kwyou2_favs', JSON.stringify(arr));
                     updateAllBadges(); alert('⭐ 收藏成功！'); window.getSelection().removeAllRanges();
                 }
             }
@@ -2602,13 +2602,13 @@
 
     let touchTimer = null;
     document.addEventListener('touchstart', function(e) {
-        if (document.getElementById('kwyou-desktop').style.display === 'none') {
+        if (document.getElementById('kwyou2-desktop').style.display === 'none') {
             touchTimer = setTimeout(function() {
                 const selectedText = window.getSelection().toString().trim();
                 if (selectedText.length > 0 && selectedText.length < 200) {
                     if(confirm(`是否将这段话加入收藏？\n\n"${selectedText}"`)) {
                         const arr = getFavs(); arr.unshift(selectedText);
-                        localStorage.setItem('kwyou_favs', JSON.stringify(arr));
+                        localStorage.setItem('kwyou2_favs', JSON.stringify(arr));
                         updateAllBadges(); window.getSelection().removeAllRanges();
                     }
                 }
